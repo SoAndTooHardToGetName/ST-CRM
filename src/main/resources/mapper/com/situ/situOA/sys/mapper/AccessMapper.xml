@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.situOA.sys.mapper.IAccessMapper">
+	<resultMap type="com.situ.situOA.sys.model.AccessModel"
+		id="baseResult">
+		<result column="id" property="id" />
+		<result column="role_code" property="roleCode" />
+		<result column="menu_code" property="menuCode" />
+		<result column="create_time" property="createTime" />
+		<result column="update_time" property="updateTime" />
+		<result column="create_by" property="createBy" />
+		<result column="update_by" property="updateBy" />
+		<result column="deleted" property="deleted" />
+		<result column="state" property="state" />
+		<result column="role_name" property="roleName" />
+		<result column="menu_name" property="menuName" />
+	</resultMap>
+
+	<sql id="where">
+		where 1=1
+		<if test="id!=null">
+			and a.id=#{id}
+		</if>
+		<if test="roleCode!=null and roleCode!=''">
+			and a.role_code=#{roleCode}
+		</if>
+		<if test="menuCode!=null and menuCode!=''">
+			and a.menu_code=#{menuCode}
+		</if>
+	</sql>
+
+	<sql id="limit">
+		limit ${row},${limit}
+	</sql>
+
+	<insert id="insert" parameterType="Object">
+		insert into
+		access_table(role_code,menu_code,create_time,create_by,update_time,update_by,deleted,state)
+		values(#{roleCode},#{menuCode},#{createTime},#{createBy},#{updateTime},#{updateBy},#{deleted},#{state})
+	</insert>
+
+	<update id="deleteModel" parameterType="Object">
+		update access_table a set
+		deleted=1,update_time=#{updateTime},update_by=#{updateBy}
+		<include refid="where" />
+	</update>
+
+	<update id="delete">
+		update access_table set
+		deleted=1,update_time=#{updateTime},update_by=#{updateBy}
+		where id in
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<update id="deletefake">
+		update access_table set
+		deleted=1,update_time=#{updateTime},update_by=#{updateBy}
+		where id in
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<update id="update" parameterType="Object">
+		update access_table set
+		role_code=#{roleCode},menu_code=#{menuCode},update_time=#{updateTime},update_by=#{updateBy}
+		where id=#{id}
+	</update>
+
+	<update id="updateActive" parameterType="Object">
+		update access_table set
+		state=#{state},update_time=#{updateTime},update_by=#{updateBy}
+		where
+		id=#{id}
+	</update>
+
+	<select id="select" parameterType="Object"
+		resultMap="baseResult">
+		select * from access_table a
+		<include refid="where" />
+		and a.deleted=0
+	</select>
+
+	<select id="selectAll" parameterType="Object"
+		resultMap="baseResult">
+		select *,(select role_name from role_table b where
+		b.role_code=a.role_code) role_name,(select menu_name from menu_table c
+		where c.menu_code=a.menu_code and c.deleted=0) menu_name from
+		access_table a
+		<include refid="where" />
+		and a.deleted=0
+	</select>
+
+	<select id="selectModel" parameterType="Object"
+		resultMap="baseResult">
+		select *,(select role_name from role_table b where
+		b.role_code=a.role_code) role_name,(select menu_name from menu_table c
+		where c.menu_code=a.menu_code and c.deleted=0) menu_name from
+		access_table a
+		<include refid="where" />
+		and a.deleted=0
+		<include refid="limit" />
+	</select>
+
+	<select id="count" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from access_table a
+		<include refid="where" />
+		and a.deleted=0
+	</select>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.situ.situOA.work.mapper.ICustomerInfoMapper">
+	<resultMap
+		type="com.situ.situOA.work.model.CustomerInfoModel" id="baseResult">
+		<result column="id" property="id" />
+		<result column="cust_code" property="code" />
+		<result column="cust_name" property="name" />
+		<result column="status" property="status" />
+		<result column="email" property="email" />
+	</resultMap>
+
+	<sql id="where">
+		where 1=1
+		<if test="id!=null">
+			and id=#{id}
+		</if>
+		<if test="name!=null and name!=''">
+			and cust_name like '%${name}%'
+		</if>
+		<if test="code!=null and code!=''">
+			and cust_code=#{code}
+		</if>
+	</sql>
+
+	<sql id="limit">
+		limit ${row},${limit}
+	</sql>
+
+	<insert id="insert" parameterType="Object">
+		insert into
+		customer_info(cust_code,cust_name,status,email)
+		values(#{code},#{name},#{status},#{email})
+	</insert>
+
+	<update id="deleteModel" parameterType="Object">
+		delete from customer_info
+		where id=#{id}
+	</update>
+
+	<update id="delete">
+		delete from customer_info
+		where id in
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<update id="update" parameterType="Object">
+		update customer_info set
+		cust_name=#{name},status=#{status},email=#{email}
+		where id=#{id}
+	</update>
+
+	<update id="updateActive" parameterType="Object">
+
+	</update>
+
+	<select id="select" parameterType="Object"
+		resultMap="baseResult">
+		select * from customer_info
+		<include refid="where" />
+	</select>
+
+	<select id="selectAll" parameterType="Object"
+		resultMap="baseResult">
+		select * from customer_info
+		<include refid="where" />
+	</select>
+
+	<select id="selectModel" parameterType="Object"
+		resultMap="baseResult">
+		select * from customer_info
+		<include refid="where" />
+		<include refid="limit" />
+	</select>
+
+	<select id="count" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from customer_info
+		<include refid="where" />
+	</select>
+
+</mapper>

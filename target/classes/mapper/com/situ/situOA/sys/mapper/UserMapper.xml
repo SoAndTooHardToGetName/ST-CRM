@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.situOA.sys.mapper.IUserMapper">
+	<resultMap type="com.situ.situOA.sys.model.UserModel"
+		id="baseResult">
+		<result column="id" property="id" />
+		<result column="user_code" property="code" />
+		<result column="user_name" property="userName" />
+		<result column="user_pass" property="userPass" />
+		<result column="role_code" property="roleCode" />
+		<result column="parent_code" property="parentCode" />
+		<result column="parent_name" property="parentName" />
+		<result column="create_time" property="createTime" />
+		<result column="create_by" property="createBy" />
+		<result column="update_time" property="updateTime" />
+		<result column="update_by" property="updateBy" />
+		<result column="deleted" property="deleted" />
+		<result column="state" property="state" />
+		<result column="name" property="name" />
+		<result column="role_name" property="roleName" />
+	</resultMap>
+
+	<resultMap type="com.situ.situOA.sys.model.UserModel"
+		id="result">
+		<id column="id" property="id" />
+		<result column="user_code" property="code" />
+		<result column="user_name" property="userName" />
+		<result column="user_pass" property="userPass" />
+		<result column="name" property="name" />
+		<result column="state" property="state" />
+		<result column="role_code" property="roleCode" />
+		<result column="role_name" property="roleName" />
+		<collection property="menus" javaType="ArrayList"
+			ofType="com.situ.situOA.sys.model.MenuModel">
+			<result column="menu_name" property="name" />
+			<result column="menu_url" property="menuUrl" />
+			<result column="parent_code" property="parentCode" />
+		</collection>
+	</resultMap>
+
+	<sql id="select">
+		a.id,a.user_code,a.user_name,a.user_pass,a.name,a.state,b.role_code,b.role_name,d.menu_name,d.menu_url,d.parent_code
+	</sql>
+
+	<sql id="where">
+		where 1=1
+		<if test="id!=null">
+			and a.id=#{id}
+		</if>
+		<if test="userName!=null and userName!=''">
+			and a.user_name=#{userName}
+		</if>
+		<if test="name!=null and name!=''">
+			and name like '%${name}%'
+		</if>
+		<if test="code!=null and code!=''">
+			and user_code=#{code}
+		</if>
+	</sql>
+
+	<sql id="role_a">
+		<if test="roleCode!=null and roleCode!=''">
+			and role_code=#{roleCode}
+		</if>
+	</sql>
+
+	<sql id="role_b">
+		<if test="roleCode!=null and roleCode!=''">
+			and role_code=(select b.parent_code from role_table
+			b
+			where
+			b.role_code=#{roleCode})
+		</if>
+	</sql>
+
+	<sql id="limit">
+		limit ${row},${limit}
+	</sql>
+
+	<sql id="access">
+		<if test="parentCode==null or parentCode==''">
+			<if test="selCode!=null and selCode!=''">
+				and (parent_code=#{selCode} or
+				parent_code in (select
+				user_code
+				from
+				user_table where
+				parent_code=#{selCode})
+				)
+			</if>
+		</if>
+	</sql>
+
+	<insert id="insert" parameterType="Object">
+		insert into
+		user_table(user_code,user_name,user_pass,role_code,parent_code,create_time,create_by,update_time,update_by,deleted,state,name)
+		values(#{code},#{userName},#{userPass},#{roleCode},#{parentCode},#{createTime},#{createBy},#{updateTime},#{updateBy},#{deleted},#{state},#{name})
+	</insert>
+
+	<update id="deleteModel" parameterType="Object">
+		update user_table a set
+		deleted=1,update_time=#{updateTime},update_by=#{updateBy}
+		<include refid="where" />
+	</update>
+
+	<update id="delete">
+		update user_table set
+		deleted=1,update_time=#{updateTime},update_by=#{updateBy}
+		where id in
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</update>
+
+	<update id="deletefake">
+		update user_table set
+		deleted=1,update_time=#{updateTime},update_by=#{updateBy}
+		where id in
+		<foreach collection="id" item="a" open="(" separator=","
+			close=")">
+			#{a}
+		</foreach>
+	</update>
+
+	<update id="update" parameterType="Object">
+		update user_table a set
+		<if test="userPass!=null and userPass!=''">user_pass=#{userPass}</if>
+		role_code=#{roleCode},parent_code=#{parentCode},name=#{name},update_time=#{updateTime},update_by=#{updateBy}
+		where id=#{id}
+	</update>
+
+	<update id="updateActive" parameterType="Object">
+		update user_table a set
+		state=#{state},update_time=#{updateTime},update_by=#{updateBy}
+		where
+		id=#{id}
+	</update>
+
+	<select id="select" parameterType="Object"
+		resultMap="baseResult">
+		select *,(select role_name from role_table b where
+		a.role_code=b.role_code) role_name,(select name from user_table a
+		where user_code=parent_code) parent_name from user_table a
+		<include refid="where" />
+	</select>
+
+	<select id="selectAll" parameterType="Object"
+		resultMap="baseResult">
+		select *,(select role_name from role_table b where
+		a.role_code=b.role_code) role_name,(select c.name from user_table c
+		where c.user_code=a.parent_code) parent_name from user_table a
+		<include refid="where" />
+		and deleted=0
+		<include refid="access" />
+		<include refid="role_b" />
+	</select>
+
+	<select id="selectModel" parameterType="Object"
+		resultMap="baseResult">
+		select *,(select role_name from role_table b where
+		a.role_code=b.role_code) role_name,(select c.name from user_table c
+		where c.user_code=a.parent_code) parent_name from user_table a
+		<include refid="where" />
+		and deleted=0
+		<include refid="access" />
+		<include refid="role_a" />
+		<include refid="limit" />
+	</select>
+
+	<select id="count" resultType="java.lang.Integer"
+		parameterType="Object">
+		select count(1) from user_table a
+		<include refid="where" />
+		and deleted=0
+	</select>
+
+	<select id="login" parameterType="Object" resultMap="result">
+		select
+		<include refid="select" />
+		from user_table a
+		left join role_table b on a.role_code=b.role_code
+		left join access_table c on a.role_code = c.role_code
+		left join
+		menu_table d on c.menu_code = d.menu_code
+		<include refid="where" />
+		and a.deleted=0
+		and c.state=1
+		and c.deleted=0
+	</select>
+</mapper>

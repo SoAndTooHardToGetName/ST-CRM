@@ -1,0 +1,24 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /situOA
+    
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    password: root
+    url: jdbc:mysql://localhost:3306/oa?useSSL=false&useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&serverTimezone=Hongkong
+    username: root
+
+  http:
+    encoding:
+      charset: utf-8
+      force: true
+      enabled: true
+      
+mybatis:
+  mapper-locations:
+  - classpath:/mapper/com/situ/situOA/*/mapper/*.xml
+  configuration:
+       log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  

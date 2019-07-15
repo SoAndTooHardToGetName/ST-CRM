@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.situOA.sys.mapper.IRoleMapper">
+	<resultMap type="com.situ.situOA.sys.model.RoleModel"
+		id="baseResult">
+		<result column="id" property="id" />
+		<result column="role_code" property="code" />
+		<result column="role_name" property="name" />
+		<result column="parent_code" property="parentCode" />
+	</resultMap>
+
+	<sql id="where">
+		where 1=1
+		<if test="id!=null">
+			and id=#{id}
+		</if>
+		<if test="code!=null and code!=''">
+			and role_code=#{code}
+		</if>
+		<if test="name!=null and name!=''">
+			and role_name like "%${name}%"
+		</if>
+	</sql>
+
+	<sql id="access">
+		<if test="parentCode!=null and praentCode!=''">
+			<if test="selCode!=null and selCode!=''">
+				and (
+				parent_code=#{selCode} or parent_code in (select
+				role_code from
+				role_table where parent_code=#{selCode})
+				)
+			</if>
+		</if>
+	</sql>
+
+	<sql id="limit">
+		limit ${row},${limit}
+	</sql>
+
+	<insert id="insert" parameterType="Object">
+		insert into
+		role_table(role_code,role_name,parent_code)
+		values(#{code},#{name},#{parentCode})
+	</insert>
+
+	<delete id="deleteModel" parameterType="Object">
+		delete from role_table
+		<include refid="where" />
+	</delete>
+
+	<delete id="delete" parameterType="Object">
+		delete from role_table where id in
+		<foreach collection="ids" item="id" open="(" separator=","
+			close=")">
+			#{id}
+		</foreach>
+	</delete>
+
+	<update id="update" parameterType="Object">
+		update role_table set
+		role_name=#{name} where id=#{id}
+	</update>
+
+	<update id="updateActive" parameterType="Object">
+		update role_table set
+		role_name=#{name}
+		where id=#{id}
+	</update>
+
+	<select id="select" resultMap="baseResult"
+		parameterType="Object">
+		select * from role_table
+		<include refid="where" />
+	</select>
+
+	<select id="selectAll" resultMap="baseResult"
+		parameterType="Object">
+		select * from role_table
+		<include refid="where" />
+		<include refid="access" />
+	</select>
+
+	<select id="selectModel" resultMap="baseResult"
+		parameterType="Object">
+		select * from role_table
+		<include refid="where" />
+		<include refid="limit" />
+	</select>
+
+	<select id="count" resultType="java.lang.Integer">
+		select count(1) from role_table
+		<include refid="where" />
+	</select>
+</mapper>
