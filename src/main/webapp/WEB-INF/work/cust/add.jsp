@@ -49,6 +49,14 @@
 			</div>
 
 			<div class="layui-form-item">
+				<label class="layui-form-label">联系电话：</label>
+				<div class="layui-input-inline">
+					<input type="text" name="phone" class="layui-input" maxlength="11"
+						value="${temp.phone }">
+				</div>
+			</div>
+
+			<div class="layui-form-item">
 				<label class="layui-form-label"></label>
 				<div class="layui-input-inline">
 					<input type="button" class="layui-btn" id="sub" value="确定" /> <input

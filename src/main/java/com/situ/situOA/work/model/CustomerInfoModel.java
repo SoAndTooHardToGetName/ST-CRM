@@ -6,6 +6,7 @@ public class CustomerInfoModel extends BaseModel {
 
 	private String status;
 	private String email;
+	private String phone;
 
 	public String getStatus() {
 		return status;
@@ -21,6 +22,14 @@ public class CustomerInfoModel extends BaseModel {
 
 	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
 	}
 
 }

@@ -102,6 +102,10 @@
 													title : '邮箱',
 												},
 												{
+													field : 'phone',
+													title : '联系电话',
+												},
+												{
 													title : '操作',
 													templet : function(d) {
 														return '<button class="layui-btn layui-btn-xs layui-btn-radius layui-btn-danger layui-icon layui-icon-delete" onclick="del('

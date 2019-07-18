@@ -55,7 +55,7 @@ public class CunstomerInfoController {
 	@RequestMapping("about")
 	public String about(CustomerInfoModel customerInfoModel, HttpServletRequest request) {
 		if (customerInfoModel.getId() != null) {
-			request.setAttribute("temp", service.selectModel(customerInfoModel));
+			request.setAttribute("temp", service.select(customerInfoModel));
 			request.setAttribute("titile", "顾客信息--修改");
 		} else
 			request.setAttribute("title", "顾客信息--添加");
